@@ -1,0 +1,8 @@
+# Loon 广告拦截分流规则
+# 由 Surge REJECT-DICT 规则转换而来
+# 用法：粘贴到配置文件的 [Rule] 部分，或作为外部规则文件引用
+# 策略说明：REJECT-DROP 直接丢弃连接（推荐，省资源）；如需返回拦截页可改用 REJECT
+DOMAIN,adsmartget.datads.cn,REJECT-DROP
+DOMAIN,analytics.oceanengine.com,REJECT-DROP
+DOMAIN,sdk-config.tanx.com,REJECT-DROP
+DOMAIN,dsp.ads.umeng.com,REJECT-DROP
