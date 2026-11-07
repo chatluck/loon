@@ -1,0 +1,62 @@
+#!name = 微信小程序 / 小游戏 去广告（泉州麻将等棋牌类通用）
+#!desc = 拦截微信侧广告 SDK（广点通/优量汇、穿山甲、快手联盟、聚合 SDK）的广告位请求与广告素材分发。纯 Rule 版，不需要 MitM 与证书，开启即生效。激励视频加载失败后，绝大多数棋牌类小程序会走「广告失败 → 直接发奖」的兜底逻辑，从而跳过观看。
+#!author = 3qh
+#!date = 2026-11-08
+
+[Rule]
+# ============================================================
+# A. 微信广告（广点通 / 优量汇 GDT）—— 小程序激励视频、banner、插屏的主链路
+#    小程序里能用的广告只有微信自己的这套，这是第一优先级
+# ============================================================
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN,pgdt.gtimg.cn,REJECT
+DOMAIN,adsmind.gdtimg.com,REJECT
+DOMAIN-SUFFIX,gdtimg.com,REJECT
+DOMAIN-SUFFIX,ugdtimg.com,REJECT
+DOMAIN,adx.qq.com,REJECT
+DOMAIN,ad.qq.com,REJECT
+DOMAIN,sdk.e.qq.com,REJECT
+
+# ============================================================
+# B. 穿山甲 / GroMore（字节）—— 小游戏常见第二家
+# ============================================================
+DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,pangolin-sdk-toutiao-b.com,REJECT
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN,tnc3-alisc1.zijieapi.com,REJECT
+
+# ============================================================
+# C. 快手联盟 / 百度联盟 / 聚合中介 SDK
+# ============================================================
+DOMAIN,open.e.kuaishou.cn,REJECT
+DOMAIN,open.e.kuaishou.com,REJECT
+DOMAIN-SUFFIX,adkwai.com,REJECT
+DOMAIN-SUFFIX,yfanads.com,REJECT
+DOMAIN-SUFFIX,wkanx.com,REJECT
+DOMAIN,mobads.baidu.com,REJECT
+DOMAIN,mobads-logs.baidu.com,REJECT
+DOMAIN-SUFFIX,anythinktech.com,REJECT
+DOMAIN-SUFFIX,bridgeturbo.com,REJECT
+DOMAIN,sdk.1rtb.net,REJECT
+DOMAIN,dsp.1rtb.com,REJECT
+DOMAIN,dsp.ads.umeng.com,REJECT
+DOMAIN-SUFFIX,tanx.com,REJECT
+DOMAIN-SUFFIX,mmstat.com,REJECT
+
+# ============================================================
+# D. 自定义槽位：抓包抓到新的广告域名后填这里
+# ============================================================
+# DOMAIN-SUFFIX,REPLACE_WITH_CAPTURED_HOST,REJECT
+
+[MitM]
+# 纯 Rule 版不需要 MitM；只有下面 E 段启用时才需要打开
+# hostname = %APPEND% servicewechat.com, *.servicewechat.com
+
+[Rewrite]
+# ============================================================
+# E. 可选：小程序包下载层改写（默认关闭，需要 MitM + 证书信任）
+#    作用：把小程序/小游戏从 servicewechat.com 拉取的框架 JS 里
+#    的 wx.createRewardedVideoAd 包一层，让 show() 直接回调 isEnded:true
+#    注意：微信有包完整性校验，部分版本会因此白屏，出问题就关掉这段
+# ============================================================
+# ^https:\/\/servicewechat\.com\/.+\/WAService\.js response-body-replace-request-body
